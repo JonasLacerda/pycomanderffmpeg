@@ -52,11 +52,12 @@ class CommandManager:
         command = self.command_entry.get()
         if command:
             start_time = time.time()
-            proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, preexec_fn=os.setsid)
+            # Do not capture stdout and stderr to avoid buffer issues
+            proc = subprocess.Popen(command, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, preexec_fn=os.setsid)
             self.processes[proc] = {'command': command, 'start_time': start_time}
             self.update_command_list()
             self.command_entry.delete(0, tk.END)  # Clear the input field
-            
+
     def update_command_list(self):
         for item in self.tree.get_children():
             self.tree.delete(item)
@@ -83,8 +84,6 @@ class CommandManager:
             # Add command and elapsed time to the treeview
             self.tree.insert("", "end", values=(display_command, elapsed_time_str))
             self.tree.bind("<ButtonRelease-1>", self.on_treeview_click)
-
-
 
     def on_treeview_click(self, event):
         item = self.tree.selection()
